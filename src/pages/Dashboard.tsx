@@ -9,8 +9,14 @@ import SubscriptionForm from "@/components/subscriptions/subscription-form";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusCircle, Search, Skull, Clock } from "lucide-react";
+import { useUser } from '@/context/UserContext';
+import LoginPage from '@/components/LoginPage';
 
 const Dashboard = () => {
+  const { user, loading } = useUser();
+  if (loading) return null;
+  if (!user) return <LoginPage />;
+
   const { subscriptions } = useSubscription();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editSubscriptionId, setEditSubscriptionId] = useState<string | undefined>();

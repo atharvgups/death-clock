@@ -6,6 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import Cemetery from "./pages/Cemetery";
 import Settings from "./pages/Settings";
 import { createContext, useContext, useState, useEffect } from "react";
+import { UserProvider } from './context/UserContext';
+import { SettingsProvider } from './context/SettingsContext';
 
 type CemeteryContextType = {
   inCemetery: boolean;
@@ -46,19 +48,23 @@ export default function App() {
   const [inCemetery, setInCemetery] = useState(false);
 
   return (
-    <CemeteryContext.Provider value={{ inCemetery, setInCemetery }}>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <SubscriptionProvider>
-          <Router>
-            <div className={`min-h-screen transition-all duration-1000 ${
-              inCemetery ? 'grayscale bg-black' : 'bg-background'
-            }`}>
-              <RouteWrapper />
-              <Toaster position="bottom-right" />
-            </div>
-          </Router>
-      </SubscriptionProvider>
-      </ThemeProvider>
-    </CemeteryContext.Provider>
-);
+    <UserProvider>
+      <SettingsProvider>
+        <CemeteryContext.Provider value={{ inCemetery, setInCemetery }}>
+          <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <SubscriptionProvider>
+              <Router>
+                <div className={`min-h-screen transition-all duration-1000 ${
+                  inCemetery ? 'grayscale bg-black' : 'bg-background'
+                }`}>
+                  <RouteWrapper />
+                  <Toaster position="bottom-right" />
+                </div>
+              </Router>
+            </SubscriptionProvider>
+          </ThemeProvider>
+        </CemeteryContext.Provider>
+      </SettingsProvider>
+    </UserProvider>
+  );
 }
