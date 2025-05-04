@@ -82,8 +82,25 @@ const GUESTBOOK = [
   "The Database: 'Row deleted successfully. Feeling empty inside.'"
 ];
 
-// Only on-theme emojis
-const THEME_EMOJIS = ["💀", "⚰️", "🪦", "🕯️", "🕺", "💃", "🎉", "🥀", "👻", "🪦", "🪦", "🪦"];
+// On-theme emojis by funeral type
+const getThemeEmojis = (funeralType: string) => {
+  switch (funeralType) {
+    case 'pixelated': // Game
+      return [
+        '🕹️', '👾', '🎮', '🧩', '💣', '🛸', '🦾', '🟪', '🟦', '🟩', '🟧', '🟨', '🔲', '🟫', '⭐', '💥', '🎲', '🧿', '🪙', '🪐', '🛡️', '⚡', '🧬', '🦄', '🧟', '🧙', '🧝', '🧞', '🧚', '🧌', '🦸', '🦹', '🧑‍🚀', '👽', '👻', '💀', '⚰️', '🪦', '🥀', '🎉', '🌈', '🕹️', '👾', '🎮', '🛸', '⭐', '💣', '🧩', '🟪', '🟦', '🟩', '🟧', '🟨', '🔲', '🟫', '🧿', '🪙', '🪐', '🛡️', '⚡', '🧬', '🦄', '🧟', '🧙', '🧝', '🧞', '🧚', '🧌', '🦸', '🦹', '🧑‍🚀', '👽', '👻', '💀', '⚰️', '🪦', '🥀', '🎉', '🌈'
+      ];
+    case 'viking':
+      return [
+        '🛡️', '⚔️', '🪓', '🦅', '🛶', '⛵', '🪙', '🪵', '🦌', '🧔‍♂️', '🧔‍♀️', '🦯', '🔥', '🌊', '🌬️', '🪶', '🪓', '🪙', '🛡️', '⚔️', '🛶', '⛵', '🪵', '🦅', '🦌', '🧔‍♂️', '🧔‍♀️', '🦯', '🔥', '🌊', '🌬️', '🪶'
+      ];
+    case 'space':
+      return [
+        '🚀', '🪐', '👨‍🚀', '👩‍🚀', '🛰️', '🌌', '🌠', '🛸', '🪐', '🛸', '👾', '🛸', '🪐', '🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘', '🌙', '⭐', '✨', '☄️', '🌟', '🛸', '🚀', '🪐', '👨‍🚀', '👩‍🚀', '🛰️', '🌌', '🌠', '🛸', '🪐', '🛸', '👾', '🛸', '🪐', '🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘', '🌙', '⭐', '✨', '☄️', '🌟'
+      ];
+    default:
+      return ['💀', '⚰️', '🪦', '🕯️', '🕺', '💃', '🎉', '🥀', '👻', '🪦', '🪦', '🪦'];
+  }
+};
 
 export const FuneralDialog = ({ subscription, onClose }: FuneralDialogProps) => {
   const [show, setShow] = useState(true);
@@ -110,9 +127,10 @@ export const FuneralDialog = ({ subscription, onClose }: FuneralDialogProps) => 
   useEffect(() => {
     if (!show) return;
     let running = true;
+    const themeEmojis = getThemeEmojis(subscription.funeralType);
     const createEmoji = () => {
       if (!running) return;
-      const emoji = THEME_EMOJIS[Math.floor(Math.random() * THEME_EMOJIS.length)];
+      const emoji = themeEmojis[Math.floor(Math.random() * themeEmojis.length)];
       const el = document.createElement('div');
       el.textContent = emoji;
       el.style.position = 'fixed';
@@ -135,7 +153,7 @@ export const FuneralDialog = ({ subscription, onClose }: FuneralDialogProps) => 
       running = false;
       clearInterval(emojiInterval);
     };
-  }, [show]);
+  }, [show, subscription.funeralType]);
 
   // Get appropriate content based on subscription type
   const getFuneralContent = () => {
