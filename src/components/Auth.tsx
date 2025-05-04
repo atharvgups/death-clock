@@ -2,7 +2,12 @@ import { supabase } from '../supabaseClient';
 
 export function Auth() {
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({ provider: 'google' });
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: 'https://death-clock-ten.vercel.app/auth/v1/callback'
+      }
+    });
   };
 
   const signOut = async () => {
