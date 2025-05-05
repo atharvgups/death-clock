@@ -57,7 +57,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.log('Inserted default settings:', newData);
       data = newData ? [newData] : [];
     }
-    if (data && data.length > 0) setSettings(data[0]);
+    if (data && data.length > 0) {
+      setSettings(data[0]);
+      if (window.location.pathname === '/api/auth/callback') {
+        window.location.replace('/');
+      }
+    }
     setLoading(false);
   };
 
