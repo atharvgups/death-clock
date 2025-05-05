@@ -5,7 +5,7 @@ export function Auth() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'https://death-clock-ten.vercel.app/auth/v1/callback'
+        redirectTo: 'https://death-clock-ten.vercel.app/api/auth/callback'
       }
     });
   };
