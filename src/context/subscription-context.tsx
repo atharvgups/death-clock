@@ -3,6 +3,8 @@ import { Subscription, SubscriptionStats, SubscriptionStatus } from "../types";
 import { toast } from "sonner";
 import { createRoot } from "react-dom/client";
 import { FuneralDialog } from "@/components/subscriptions/funeral-dialog";
+import { useUser } from './UserContext';
+import { supabase } from '../supabaseClient';
 
 type SubscriptionContextType = {
   subscriptions: Subscription[];
@@ -73,15 +75,8 @@ const calculateStats = (subscriptions: Subscription[]): SubscriptionStats => {
 };
 
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>(() => {
-    // Load from localStorage on initial mount
-    const saved = localStorage.getItem('deathClock_subscriptions');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed; // Do not filter out deleted subscriptions
-    }
-    return [];
-  });
+  const { user } = useUser();
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [stats, setStats] = useState<SubscriptionStats>({
     totalActive: 0,
     totalExpired: 0,
@@ -103,22 +98,21 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return () => window.removeEventListener('focus', syncSettings);
   }, []);
 
+  // Fetch subscriptions from Supabase for the logged-in user
+  const fetchSubscriptions = async () => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', user.id);
+    if (data) setSubscriptions(data);
+    setStats(calculateStats(data || []));
+  };
+
   useEffect(() => {
-    const savedSubscriptions = localStorage.getItem('deathClock_subscriptions');
-    if (savedSubscriptions) {
-      try {
-        const parsed = JSON.parse(savedSubscriptions);
-        const updated = parsed.map((sub: Subscription) => ({
-          ...sub,
-          // If deleted, always set status to 'expired'
-          status: sub.deleted ? 'expired' : (sub.status === 'expired' ? 'expired' : calculateStatus(sub.endDate, sub.autoRenew))
-        }));
-        setSubscriptions(updated);
-      } catch (error) {
-        console.error('Failed to parse subscriptions:', error);
-      }
-    }
-  }, []);
+    if (user) fetchSubscriptions();
+    else setSubscriptions([]);
+  }, [user]);
 
   useEffect(() => {
     localStorage.setItem('deathClock_subscriptions', JSON.stringify(subscriptions));
@@ -219,74 +213,40 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return () => clearInterval(interval);
   }, [subscriptions, browserNotifications, reminderDays]);
 
-  const addSubscription = (subscription: Omit<Subscription, "id" | "status">) => {
+  // Add subscription to Supabase
+  const addSubscription = async (subscription: Omit<Subscription, "id" | "status">) => {
+    if (!user) return;
     const newSubscription: Subscription = {
       ...subscription,
-      id: Math.random().toString(36).substring(2, 11),
+      user_id: user.id,
+      id: crypto.randomUUID(),
       status: calculateStatus(subscription.endDate, subscription.autoRenew),
-      liked: false // Default to not liked
+      liked: false
     };
-    
-    setSubscriptions(prev => [...prev, newSubscription]);
-    toast.success(`${subscription.name} has been born. Its death clock is ticking...`);
+    const { data, error } = await supabase.from('subscriptions').insert([newSubscription]);
+    if (!error) fetchSubscriptions();
   };
 
-  const updateSubscription = (id: string, subscription: Partial<Subscription>) => {
-    setSubscriptions(prev => 
-      prev.map(sub => {
-        if (sub.id === id) {
-          const updated = {
-            ...sub,
-            ...subscription
-          };
-          if (subscription.endDate || subscription.autoRenew !== undefined) {
-            updated.status = calculateStatus(
-              subscription.endDate || sub.endDate,
-              subscription.autoRenew !== undefined ? subscription.autoRenew : sub.autoRenew
-            );
-          }
-          return updated;
-        }
-        return sub;
-      })
-    );
-    toast.success(`${subscription.name || 'Subscription'} has been updated`);
+  // Update subscription in Supabase
+  const updateSubscription = async (id: string, updates: Partial<Subscription>) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('subscriptions')
+      .update(updates)
+      .eq('id', id)
+      .eq('user_id', user.id);
+    if (!error) fetchSubscriptions();
   };
 
-  const deleteSubscription = (id: string) => {
-    const subscription = subscriptions.find(sub => sub.id === id);
-    if (subscription) {
-      // Mark as deleted instead of removing
-      setSubscriptions(prev => prev.map(sub => {
-        if (sub.id === id) {
-          return {
-            ...sub,
-            status: 'expired' as const,
-            funeralType: 'standard' as const,
-            deleted: true, // Add deleted flag
-            forceExpired: true
-          };
-        }
-        return sub;
-      }));
-
-      // Show funeral dialog
-      const dialogElement = document.createElement('div');
-      document.body.appendChild(dialogElement);
-      
-      const root = createRoot(dialogElement);
-      root.render(
-        <FuneralDialog 
-          subscription={subscription} 
-          onClose={() => {
-            root.unmount();
-            document.body.removeChild(dialogElement);
-          }} 
-        />
-      );
-
-      toast.success(`${subscription.name} has been laid to rest. It is no more.`);
-    }
+  // Delete subscription in Supabase (soft delete)
+  const deleteSubscription = async (id: string) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('subscriptions')
+      .update({ status: 'expired', deleted: true, forceExpired: true })
+      .eq('id', id)
+      .eq('user_id', user.id);
+    if (!error) fetchSubscriptions();
   };
 
   const getSubscription = (id: string) => {
@@ -324,7 +284,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         deleteSubscription,
         getSubscription,
         performFuneral,
-        setSubscriptions
+        setSubscriptions: setSubscriptions // for compatibility, but not used for persistence
       }}
     >
       {children}

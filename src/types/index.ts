@@ -4,6 +4,7 @@ export type FuneralType = 'viking' | 'pixelated' | 'standard' | 'space';
 
 export interface Subscription {
   id: string;
+  user_id: string;
   name: string;
   website?: string;
   logo?: string;
