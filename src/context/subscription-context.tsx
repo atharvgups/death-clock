@@ -216,14 +216,23 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // Add subscription to Supabase
   const addSubscription = async (subscription: Omit<Subscription, "id" | "status">) => {
     if (!user) return;
+    // Ensure all required fields are present and valid
     const newSubscription: Subscription = {
       ...subscription,
       user_id: user.id,
-      id: crypto.randomUUID(),
+      id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11),
       status: calculateStatus(subscription.endDate, subscription.autoRenew),
-      liked: false
+      liked: false,
+      deleted: false,
+      forceExpired: false,
+      funeralType: subscription.funeralType || 'standard',
+      category: subscription.category || 'Other',
+      notes: subscription.notes || ''
     };
     const { data, error } = await supabase.from('subscriptions').insert([newSubscription]);
+    if (error) {
+      console.error('Supabase insert error:', error.message, error.details, error.hint, error.code, newSubscription);
+    }
     if (!error) fetchSubscriptions();
   };
 
