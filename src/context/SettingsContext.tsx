@@ -30,11 +30,24 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const fetchSettings = async () => {
     if (!user) return;
     setLoading(true);
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('settings')
       .select('*')
       .eq('user_id', user.id)
       .single();
+    if (!data && !error) {
+      // No row exists, create one with defaults
+      const { data: newData } = await supabase.from('settings').insert([
+        {
+          user_id: user.id,
+          email_reminders: false,
+          browser_notifications: false,
+          email: user.email,
+          reminder_days: 7
+        }
+      ]).select().single();
+      data = newData;
+    }
     if (data) setSettings(data);
     setLoading(false);
   };
