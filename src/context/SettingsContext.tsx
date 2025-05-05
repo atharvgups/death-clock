@@ -29,15 +29,20 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const fetchSettings = async () => {
     if (!user) return;
+    console.log('Fetching settings for user:', user.id);
     setLoading(true);
     let { data, error } = await supabase
       .from('settings')
       .select('*')
-      .eq('user_id', user.id)
-      .single();
-    if (!data && !error) {
+      .eq('user_id', user.id);
+    console.log('Fetched data:', data);
+    console.log('Fetch error:', error);
+    if (error) {
+      console.error('Error fetching settings:', error.message, error);
+    }
+    if ((!data || data.length === 0) && !error) {
       // No row exists, create one with defaults
-      const { data: newData } = await supabase.from('settings').insert([
+      const { data: newData, error: insertError } = await supabase.from('settings').insert([
         {
           user_id: user.id,
           email_reminders: false,
@@ -46,9 +51,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           reminder_days: 7
         }
       ]).select().single();
-      data = newData;
+      if (insertError) {
+        console.error('Error inserting default settings:', insertError.message, insertError);
+      }
+      console.log('Inserted default settings:', newData);
+      data = newData ? [newData] : [];
     }
-    if (data) setSettings(data);
+    if (data && data.length > 0) setSettings(data[0]);
     setLoading(false);
   };
 
@@ -59,14 +68,26 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const updateSettings = async (updates: Partial<Settings>) => {
     if (!user) return;
+    console.log('Updating settings with:', updates);
+    console.log('Current settings:', settings);
     let newSettings = { ...settings, ...updates, user_id: user.id };
     if (settings && settings.id) {
       // Update existing
-      await supabase.from('settings').update(updates).eq('id', settings.id);
+      const { error } = await supabase.from('settings').update(updates).eq('id', settings.id);
+      if (error) {
+        console.error('Error updating settings:', error.message, error);
+        console.log('Update error:', error);
+      }
     } else {
       // Insert new
-      const { data } = await supabase.from('settings').insert([newSettings]).select().single();
-      if (data) newSettings = data;
+      const { data, error } = await supabase.from('settings').insert([newSettings]).select().single();
+      if (error) {
+        console.error('Error inserting new settings:', error.message, error);
+      }
+      if (data) {
+        newSettings = data;
+        console.log('Inserted new settings:', data);
+      }
     }
     setSettings(newSettings);
   };
