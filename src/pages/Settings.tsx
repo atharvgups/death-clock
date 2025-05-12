@@ -44,6 +44,17 @@ const Settings = () => {
     window.location.href = '/';
   };
 
+  const handleBrowserNotificationsToggle = async (val: boolean) => {
+    if (val && (typeof Notification !== 'undefined') && Notification.permission !== 'granted') {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        toast.error('You must allow notifications in your browser to receive reminders.');
+        return;
+      }
+    }
+    handleSave({ browser_notifications: val });
+  };
+
   return (
     <div className="bg-vaporwave-darkPurple min-h-screen">
       <Navbar />
@@ -84,7 +95,7 @@ const Settings = () => {
                   <Switch 
                     id="browser-notifications" 
                     checked={!!settings?.browser_notifications}
-                    onCheckedChange={val => handleSave({ browser_notifications: val })}
+                    onCheckedChange={handleBrowserNotificationsToggle}
                   />
                   <Label htmlFor="browser-notifications">Enable browser notifications</Label>
                 </div>
