@@ -126,55 +126,6 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setStats(calculateStats(subscriptions));
   }, [subscriptions]);
 
-  useEffect(() => {
-    const updateStatuses = () => {
-      setSubscriptions(prev => 
-        prev.map(sub => {
-          // Always set status to 'expired' for deleted subscriptions
-          if (sub.deleted) {
-            return { ...sub, status: 'expired' };
-          }
-          const status = calculateStatus(sub.endDate, sub.autoRenew);
-          // Auto-renewal logic
-          if (status === 'expired' && sub.autoRenew) {
-            let newEndDate = new Date(sub.endDate);
-            switch (sub.frequency) {
-              case 'monthly':
-                newEndDate.setMonth(newEndDate.getMonth() + 1);
-                break;
-              case 'yearly':
-                newEndDate.setFullYear(newEndDate.getFullYear() + 1);
-                break;
-              case 'quarterly':
-                newEndDate.setMonth(newEndDate.getMonth() + 3);
-                break;
-              case 'weekly':
-                newEndDate.setDate(newEndDate.getDate() + 7);
-                break;
-              default:
-                newEndDate.setMonth(newEndDate.getMonth() + 1);
-            }
-            // Show toast for auto-renewal
-            toast.success(`${sub.name} auto-renewed! Next renewal: ${newEndDate.toLocaleDateString()}`);
-            return {
-              ...sub,
-              endDate: newEndDate.toISOString(),
-              status: 'active',
-            };
-          }
-          return {
-            ...sub,
-            status,
-          };
-        })
-      );
-    };
-
-    const intervalId = setInterval(updateStatuses, 1000 * 60 * 60 * 24);
-    updateStatuses(); // Run once on mount
-    return () => clearInterval(intervalId);
-  }, []);
-
   // Browser notification logic
   useEffect(() => {
     if (!browserNotifications || !('Notification' in window) || Notification.permission !== 'granted') return;
