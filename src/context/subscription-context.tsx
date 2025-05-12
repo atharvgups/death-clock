@@ -105,8 +105,15 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       .from('subscriptions')
       .select('*')
       .eq('user_id', user.id);
-    if (data) setSubscriptions(data);
-    setStats(calculateStats(data || []));
+    if (data) {
+      // Immediately recalculate status for each subscription
+      const updated = data.map(sub => ({
+        ...sub,
+        status: calculateStatus(sub.endDate, sub.autoRenew, sub.forceExpired)
+      }));
+      setSubscriptions(updated);
+      setStats(calculateStats(updated));
+    }
   };
 
   useEffect(() => {
