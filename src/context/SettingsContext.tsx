@@ -59,7 +59,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
     if (data && data.length > 0) {
       setSettings(data[0]);
-      if (window.location.pathname === '/api/auth/callback') {
+      if (window.location.pathname === '/auth/v1/callback') {
         window.location.replace('/');
       }
     }

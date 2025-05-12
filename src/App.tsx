@@ -5,6 +5,7 @@ import { SubscriptionProvider } from "./context/subscription-context";
 import Dashboard from "./pages/Dashboard";
 import Cemetery from "./pages/Cemetery";
 import Settings from "./pages/Settings";
+import AuthCallback from "./pages/AuthCallback";
 import { createContext, useContext, useState, useEffect } from "react";
 import { UserProvider } from './context/UserContext';
 import { SettingsProvider } from './context/SettingsContext';
@@ -32,6 +33,7 @@ function RouteWrapper() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/cemetery" element={<Cemetery />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/auth/v1/callback" element={<AuthCallback />} />
           </Routes>
   );
 }
