@@ -69,61 +69,12 @@ const Settings = () => {
           </p>
         </div>
         
-        <Tabs defaultValue="notifications" className="mt-6">
+        <Tabs defaultValue="account" className="mt-6">
           <TabsList className="mb-6 bg-vaporwave-charcoal">
-            <TabsTrigger value="notifications" className="data-[state=active]:bg-vaporwave-neonPink">
-              Notifications
-            </TabsTrigger>
             <TabsTrigger value="account" className="data-[state=active]:bg-vaporwave-neonPink">
               Account
             </TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="notifications">
-            <Card className="glass-card mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5" /> 
-                  Browser Notifications
-                </CardTitle>
-                <CardDescription>
-                  Receive notifications in your browser about expiring subscriptions
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Switch 
-                    id="browser-notifications" 
-                    checked={!!settings?.browser_notifications}
-                    onCheckedChange={handleBrowserNotificationsToggle}
-                  />
-                  <Label htmlFor="browser-notifications">Enable browser notifications</Label>
-                </div>
-                
-                <div className="pt-2">
-                  <Label htmlFor="reminder-days">Reminder days before expiration</Label>
-                  <div className="flex items-center gap-3 mt-2">
-                    <Select 
-                      value={String(settings?.reminder_days ?? 7)}
-                      onValueChange={val => handleSave({ reminder_days: Number(val) })}
-                      disabled={!settings?.browser_notifications}
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue placeholder="Select days" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">1 day</SelectItem>
-                        <SelectItem value="3">3 days</SelectItem>
-                        <SelectItem value="7">7 days</SelectItem>
-                        <SelectItem value="14">14 days</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
           <TabsContent value="account">
             <Card className="glass-card mb-6">
               <CardHeader>
