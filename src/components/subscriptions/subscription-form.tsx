@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -378,9 +377,10 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ subscriptionId, onS
                   </FormDescription>
                 </div>
                 <FormControl>
-                  <Switch
+                  <input
+                    type="checkbox"
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onChange={(e) => field.onChange(e.target.checked)}
                   />
                 </FormControl>
               </FormItem>
