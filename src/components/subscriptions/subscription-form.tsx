@@ -21,8 +21,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 import { DialogClose } from "@/components/ui/dialog";
 import { searchServices } from "@/data/subscription-database";
 
@@ -128,7 +126,9 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ subscriptionId, onS
         autoRenew: data.autoRenew,
         notes: data.notes || "",
         funeralType: data.funeralType,
-        category: data.category || "Other"
+        category: data.category || "Other",
+        user_id: "",
+        liked: false
       };
       
       addSubscription(newSubscription);
@@ -232,19 +232,18 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ subscriptionId, onS
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Billing Frequency</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select frequency" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="yearly">Yearly</SelectItem>
-                    <SelectItem value="quarterly">Quarterly</SelectItem>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <select
+                    className="input"
+                    value={field.value}
+                    onChange={field.onChange}
+                  >
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="weekly">Weekly</option>
+                  </select>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -263,10 +262,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ subscriptionId, onS
                     <FormControl>
                       <Button
                         variant={"outline"}
-                        className={cn(
-                          "pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
+                        className="pl-3 text-left font-normal"
                       >
                         {field.value ? (
                           format(field.value, "PPP")
@@ -306,10 +302,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ subscriptionId, onS
                     <FormControl>
                       <Button
                         variant={"outline"}
-                        className={cn(
-                          "pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
+                        className="pl-3 text-left font-normal"
                       >
                         {field.value ? (
                           format(field.value, "PPP")
@@ -346,20 +339,19 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ subscriptionId, onS
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Software">Software</SelectItem>
-                    <SelectItem value="Entertainment">Entertainment</SelectItem>
-                    <SelectItem value="Productivity">Productivity</SelectItem>
-                    <SelectItem value="Utilities">Utilities</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <select
+                    className="input"
+                    value={field.value}
+                    onChange={field.onChange}
+                  >
+                    <option value="Software">Software</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Productivity">Productivity</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
