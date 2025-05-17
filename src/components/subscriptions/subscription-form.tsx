@@ -78,6 +78,22 @@ const SERVICE_LINKS: Record<string, string> = {
   // Add more as needed
 };
 
+// Add a simple custom Switch component
+const Switch = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    onClick={() => onChange(!checked)}
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${checked ? 'bg-vaporwave-neonPink' : 'bg-gray-400'}`}
+    style={{ minWidth: 44 }}
+  >
+    <span
+      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`}
+    />
+  </button>
+);
+
 const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ subscriptionId, onSuccess }) => {
   const { addSubscription, updateSubscription, getSubscription } = useSubscription();
   
@@ -232,7 +248,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ subscriptionId, onS
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Billing Frequency</FormLabel>
-                <FormControl>
+                  <FormControl>
                   <select
                     className="input"
                     value={field.value}
@@ -243,7 +259,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ subscriptionId, onS
                     <option value="quarterly">Quarterly</option>
                     <option value="weekly">Weekly</option>
                   </select>
-                </FormControl>
+                  </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -339,7 +355,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ subscriptionId, onS
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
-                <FormControl>
+                  <FormControl>
                   <select
                     className="input"
                     value={field.value}
@@ -351,7 +367,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ subscriptionId, onS
                     <option value="Utilities">Utilities</option>
                     <option value="Other">Other</option>
                   </select>
-                </FormControl>
+                  </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -369,11 +385,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({ subscriptionId, onS
                   </FormDescription>
                 </div>
                 <FormControl>
-                  <input
-                    type="checkbox"
-                    checked={field.value}
-                    onChange={(e) => field.onChange(e.target.checked)}
-                  />
+                  <Switch checked={field.value} onChange={field.onChange} />
                 </FormControl>
               </FormItem>
             )}
