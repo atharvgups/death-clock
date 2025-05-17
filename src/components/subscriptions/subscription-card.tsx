@@ -136,6 +136,11 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription, onEdi
     });
   };
 
+  // Add a handler to open the funeral dialog for delete
+  const handleDeleteWithFuneral = () => {
+    setFuneralDialogOpen(true);
+  };
+
   const timeLeft = formatDistanceToNow(new Date(subscription.endDate), { 
     addSuffix: true,
     includeSeconds: true
@@ -198,7 +203,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription, onEdi
             autoRenew={subscription.autoRenew}
             liked={subscription.liked}
             onEdit={() => onEdit(subscription.id)}
-            onDelete={() => deleteSubscription(subscription.id)}
+            onDelete={handleDeleteWithFuneral}
             onToggleRenewal={handleAutoRenewToggle}
             onToggleLike={handleToggleLike}
           />
@@ -208,7 +213,10 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription, onEdi
       {funeralDialogOpen && (
         <FuneralDialog 
           subscription={subscription}
-          onClose={() => setFuneralDialogOpen(false)}
+          onClose={() => {
+            setFuneralDialogOpen(false);
+            deleteSubscription(subscription.id);
+          }}
         />
       )}
     </>
