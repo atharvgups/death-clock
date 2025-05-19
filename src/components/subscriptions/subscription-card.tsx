@@ -69,14 +69,10 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription, onEdi
           });
         } else {
           // Auto-renew logic
+          setFuneralDialogOpen(true); // Show wallet funeral dialog
           const frequency = subscription.frequency;
-          let extension;
-          
-          // Get current date parts
-          const currentEnd = new Date(endDate);
           const newStartDate = new Date(endDate);
           let newEndDate;
-          
           switch(frequency) {
             case 'weekly':
               newEndDate = new Date(endDate);
@@ -98,7 +94,6 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription, onEdi
               newEndDate = new Date(endDate);
               newEndDate.setMonth(newEndDate.getMonth() + 1);
           }
-    
           updateSubscription(subscription.id, {
             ...subscription,
             startDate: newStartDate.toISOString(),
